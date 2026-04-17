@@ -1,0 +1,146 @@
+CREATE DATABASE Datadigger;
+USE Datadigger;
+
+-- Customers Table
+CREATE TABLE Customers(
+    Customers_id INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(100),
+    Email VARCHAR(100),
+    Address VARCHAR(225)
+);
+
+-- Orders Table
+CREATE TABLE Orders (
+    Order_Id INT PRIMARY KEY AUTO_INCREMENT,
+    Customer_Id INT,
+    OrderDate DATE,
+    Total_Amount DECIMAL(10,2),
+    FOREIGN KEY (Customer_Id) 
+    REFERENCES Customers(Customers_id)
+);
+
+-- Products Table
+CREATE TABLE Products (
+    ProductID INT PRIMARY KEY AUTO_INCREMENT,
+    ProductName VARCHAR(100),
+    Price DECIMAL(10,2),
+    Stock INT
+);
+
+-- OrderDetails Table
+CREATE TABLE OrderDetails (
+    OrderDetailID INT PRIMARY KEY AUTO_INCREMENT,
+    OrderID INT,
+    ProductID INT,
+    Quantity INT,
+    SubTotal DECIMAL(10,2),
+    FOREIGN KEY (OrderID) 
+    REFERENCES Orders(Order_Id),
+    FOREIGN KEY (ProductID) 
+    REFERENCES Products(ProductID)
+);
+
+-- Insert Customers
+INSERT INTO Customers (Name, Email, Address) VALUES
+('Alice', 'alice@gmail.com', 'Ahmedabad'),
+('Bob', 'bob@gmail.com', 'Mumbai'),
+('Charlie', 'charlie@gmail.com', 'Delhi'),
+('David', 'david@gmail.com', 'Pune'),
+('Eva', 'eva@gmail.com', 'Surat');
+
+-- Insert Products
+INSERT INTO Products (ProductName, Price, Stock) VALUES
+('Laptop', 50000, 10),
+('Phone', 20000, 20),
+('Headphones', 2000, 50),
+('Keyboard', 1500, 30),
+('Mouse', 800, 40);
+
+-- Insert Orders
+INSERT INTO Orders (Customer_Id, OrderDate, Total_Amount) VALUES
+(1, '2026-04-01', 52000),
+(2, '2026-04-05', 20000),
+(3, '2026-04-10', 3500),
+(1, '2026-04-12', 1500),
+(4, '2026-04-15', 800);
+
+-- Insert Order Details
+INSERT INTO OrderDetails (OrderID, ProductID, Quantity, SubTotal) VALUES
+(1, 1, 1, 50000),
+(1, 3, 1, 2000),
+(2, 2, 1, 20000),
+(3, 3, 1, 2000),
+(3, 5, 1, 800),
+(4, 4, 1, 1500),
+(5, 5, 1, 800);
+
+-- Retrieve all customers
+SELECT * FROM Customers;
+
+-- Update address
+UPDATE Customers
+SET Address = 'Bangalore'
+WHERE Customers_id = 1;
+
+DELETE FROM Customers
+WHERE Customers_id = 5;
+
+-- Find customer named Alice
+SELECT * FROM Customers
+WHERE Name = 'Alice';
+
+-- All orders of a specific customer
+SELECT * FROM Orders
+WHERE Customer_Id = 1;
+
+-- Update total amount
+UPDATE Orders
+SET Total_Amount = 55000
+WHERE Order_Id = 1;
+
+DELETE FROM Orders
+WHERE Order_Id = 5;
+
+SELECT 
+    MAX(Total_Amount) AS Highest,
+    MIN(Total_Amount) AS Lowest,
+    AVG(Total_Amount) AS Average
+FROM Orders;
+
+-- Products sorted by price
+SELECT * FROM Products
+ORDER BY Price DESC;
+
+-- Update product price
+UPDATE Products
+SET Price = 1800
+WHERE ProductID = 4;
+
+-- Delete out of stock products
+DELETE FROM Products
+WHERE Stock = 0;
+
+-- Products between ₹500 and ₹2000
+SELECT * FROM Products
+WHERE Price BETWEEN 500 AND 2000;
+
+-- Max & Min price
+SELECT 
+    MAX(Price) AS MostExpensive,
+    MIN(Price) AS Cheapest
+FROM Products;
+
+-- Total revenue from order details
+SELECT SUM(SubTotal) FROM OrderDetails;
+
+-- Count of each product sold
+SELECT ProductID, COUNT(*) 
+FROM OrderDetails
+GROUP BY ProductID;
+
+-- Top 3 most sold products
+SELECT ProductID, SUM(Quantity) AS TotalSold
+FROM OrderDetails
+GROUP BY ProductID
+ORDER BY TotalSold DESC
+LIMIT 3;
