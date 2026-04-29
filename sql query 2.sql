@@ -1,0 +1,136 @@
+use company_os;
+CREATE TABLE Customers (
+    CustomerID INT PRIMARY KEY,
+    FirstName VARCHAR(50),
+    LastName VARCHAR(50),
+    Email VARCHAR(100),
+    RegistrationDate DATE
+);
+
+
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY,
+    CustomerID INT,
+    OrderDate DATE,
+    TotalAmount DECIMAL(10,2),
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+
+CREATE TABLE Employeess (
+    EmployeeID INT PRIMARY KEY,
+    FirstName VARCHAR(50),
+    LastName VARCHAR(50),
+    Department VARCHAR(50),
+    HireDate DATE,
+    Salary DECIMAL(10,2)
+);
+
+INSERT INTO Customers VALUES
+(1, 'John', 'Doe', 'john.doe@email.com', '2022-03-15'),
+(2, 'Jane', 'Smith', 'jane.smith@email.com', '2021-11-02');
+
+INSERT INTO Orders VALUES
+(101, 1, '2023-07-01', 150.50),
+(102, 1, '2023-08-10', 200.00),
+(103, 2, '2023-09-05', 300.75);
+
+INSERT INTO Employeess VALUES
+(1, 'Mark', 'Johnson', 'Sales', '2020-01-15', 50000),
+(2, 'Susan', 'Lee', 'HR', '2021-03-20', 55000);
+
+-- inner join 
+SELECT *
+FROM Orders o
+INNER JOIN Customers c
+ON o.CustomerID = c.CustomerID;
+
+-- left join
+SELECT *
+FROM Customers c
+LEFT JOIN Orders o
+ON c.CustomerID = o.CustomerID;
+
+-- right join
+SELECT *
+FROM Orders o
+RIGHT JOIN Customers c
+ON o.CustomerID = c.CustomerID;
+
+-- Customers with orders above average
+SELECT *
+FROM Customers
+WHERE CustomerID IN (
+    SELECT CustomerID
+    FROM Orders
+    WHERE TotalAmount > (SELECT AVG(TotalAmount) FROM Orders)
+);
+
+-- Employees earning above average
+SELECT *
+FROM Employees
+WHERE Salary > (SELECT AVG(Salary) FROM Employees);
+
+-- Extract year and month
+SELECT 
+    OrderID,
+    YEAR(OrderDate) AS Year,
+    MONTH(OrderDate) AS Month
+FROM Orders;
+
+-- Date difference
+SELECT 
+    OrderID,
+    DATEDIFF(CURDATE(), OrderDate) AS DaysDifference
+FROM Orders;
+
+-- Format date
+SELECT 
+    OrderID,
+    DATE_FORMAT(OrderDate, '%d-%m-%Y') AS FormattedDate
+FROM Orders;
+
+-- Full name
+SELECT 
+    CONCAT(FirstName, ' ', LastName) AS FullName
+FROM Customers;
+
+-- Replace string
+SELECT 
+    REPLACE(FirstName, 'John', 'Jonathan') AS UpdatedName
+FROM Customers;
+
+-- Uppercase / lowercas
+SELECT 
+    UPPER(FirstName) AS FirstName_Upper,
+    LOWER(LastName) AS LastName_Lower
+FROM Customers;
+
+-- Trim spaces
+SELECT 
+    TRIM(Email) AS CleanEmail
+FROM Customers;
+
+-- Running Total
+SELECT 
+    OrderID,
+    TotalAmount,
+    SUM(TotalAmount) OVER (ORDER BY OrderDate) AS RunningTotal
+FROM Orders;
+
+-- Rank Orders
+SELECT 
+    OrderID,
+    TotalAmount,
+    RANK() OVER (ORDER BY TotalAmount DESC) AS RankOrder
+FROM Orders;
+
+-- Discount Logic
+SELECT 
+    OrderID,
+    TotalAmount,
+    CASE 
+        WHEN TotalAmount > 1000 THEN '10% Off'
+        WHEN TotalAmount >= 500 THEN '5% Off'
+        ELSE 'No Discount'
+    END AS Discount
+FROM Orders;
